@@ -9,6 +9,7 @@ docker run -d \
     --name $YACHT_CONTAINER_NAME \
     --restart unless-stopped \
     --publish 8888:8000 \
+    --env "DISABLE_AUTH=true" \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume yacht:/config \
     selfhostedpro/yacht:latest
