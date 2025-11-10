@@ -1,0 +1,25 @@
+# Environment files with sensitive data
+.env
+*.env
+.env.local
+.env.*.local
+
+# Password files
+*password*.txt
+root_password.txt
+
+# Docker volumes and data
+data/
+volumes/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
