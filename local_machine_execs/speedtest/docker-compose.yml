@@ -1,0 +1,24 @@
+services:
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    env_file: .env
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/GMT+3
+      - DISPLAY_TIMEZONE=Etc/GMT+3 #optional
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE="*/20 * * * *"
+      - DB_HOST= #optional
+      - DB_PORT= #optional
+      - DB_DATABASE=/config/speed.db #optional
+      - DB_USERNAME= #optional
+      - DB_PASSWORD=${DB_PASSWORD:-} #optional
+      - PRUNE_RESULTS_OLDER_THAN=0 #optional
+    volumes:
+      - ./data:/config
+    ports:
+      - 8433:80
+    restart: unless-stopped
