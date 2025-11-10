@@ -5,25 +5,27 @@ services:
     image: mysql:5.7
     container_name: redmine_mysql
     restart: always
+    env_file: .env
     volumes:
       - /srv/redmine-mysql:/var/lib/mysql #Helps to store MySQL data in `dbdata`
     environment:
-      MYSQL_ROOT_PASSWORD: UN1TT2QhO354jDMxBzZYmNZAIy0iVgENYIzDZTWYGON
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: redmine_db
       MYSQL_USER: redmine_user
-      MYSQL_PASSWORD: redmine_user_pass
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
   redmine:
     image: redmine
     restart: always
+    env_file: .env
     ports:
       - 8081:3000
     environment:
       REDMINE_DB_MYSQL: mysql_db
       REDMINE_DB_DATABASE: redmine_db
       REDMINE_DB_USERNAME: redmine_user
-      REDMINE_DB_PASSWORD: redmine_user_pass
-      REDMINE_SECRET_KEY_BASE: d855496646e88b7c12e0a80135bef652
+      REDMINE_DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDMINE_SECRET_KEY_BASE: ${REDMINE_SECRET_KEY_BASE}
     depends_on:
       - 'mysql_db' # Wait service `mysql_db` to open
     links:
