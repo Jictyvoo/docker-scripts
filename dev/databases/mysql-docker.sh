@@ -1,27 +1,48 @@
+#!/bin/bash
 # Docker creating a shared volume, in case of mysql update or delete image
+
+# Load environment variables from .env file if it exists
+if [ -f .env ]; then
+  export $(cat .env | grep -v '^#' | xargs)
+fi
+
 export MYSQL_HOME=/srv/mysql
 export MYSQL_NETWORK_BRIDGE=default-mysql-bridge
 export MYSQL_CONTAINER_NAME=mysql-server
-# Pull image and run it
+export MYSQL_USER=dba
 
-docker pull mysql/mysql-server:5.6
+# Validate required environment variables
+if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
+  echo "Error: MYSQL_ROOT_PASSWORD is not set. Please set it in .env file or export it."
+  echo "See .env.example for reference."
+  exit 1
+fi
+
+if [ -z "$MYSQL_PASSWORD" ]; then
+  echo "Error: MYSQL_PASSWORD is not set. Please set it in .env file or export it."
+  echo "See .env.example for reference."
+  exit 1
+fi
+
+# Pull image and run it
+docker pull mysql/mysql-server:latest
 ###########################################################
 # The user is needed to access the database externally,
 # because root is only inside container
 ###########################################################
 
-docker network create $MYSQL_NETWORK_BRIDGE
+docker network create $MYSQL_NETWORK_BRIDGE 2>/dev/null || true
 docker run -d \
   --name $MYSQL_CONTAINER_NAME \
   --restart always \
-  --env "MYSQL_ROOT_PASSWORD=admin" \
+  --env "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
   --env "MYSQL_ROOT_HOST=%" \
-  --env "MYSQL_USER=dba" \
-  --env "MYSQL_PASSWORD=db_pass" \
+  --env "MYSQL_USER=$MYSQL_USER" \
+  --env "MYSQL_PASSWORD=$MYSQL_PASSWORD" \
   --volume $MYSQL_HOME/etc:/etc/mysql:Z \
   --volume $MYSQL_HOME/storage:/var/lib/mysql:Z \
   --publish 3306:3306 \
-  mysql/mysql-server:5.6 \
+  mysql/mysql-server:latest \
   --lower-case-table-names
 
 # Create a network bridge to the mysql server,
